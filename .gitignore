@@ -1,2 +1,23 @@
-# Enviroments
+# Environments
 .venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# DVC: generated datasets and artifacts are tracked by DVC
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+models/*
+!models/.gitkeep
+runs/
+
+# YOLO
+*.pt
+*.onnx
+
+# Local files
+.DS_Store
