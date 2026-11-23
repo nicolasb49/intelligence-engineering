@@ -53,6 +53,22 @@ git commit -m "Update COCO dataset"
 git push
 ```
 
+### COCO-2017-Subset für YOLO
+
+Lade reproduzierbar 50 Trainingsbilder mit mindestens einer der Klassen
+`car`, `truck`, `bicycle` oder `person` samt Bounding-Box-Annotationen herunter
+und exportiere sie im YOLO-Format:
+
+```bash
+python -m src.download_coco_subset
+```
+
+Der Export liegt unter `data/processed/coco-2017-yolo-50/` und enthält eine
+`dataset.yaml` mit genau diesen vier Klassen. Bei erneutem Start wird dieser
+Exportordner ersetzt. FiftyOne lädt zur Auswahl das COCO-Annotationsarchiv,
+aber nur die 50 ausgewählten Bilddateien statt des vollständigen Bildbestands.
+Es wird noch kein Training gestartet.
+
 ### Lokales DVC-Remote
 
 Das konfigurierte lokale Remote liegt außerhalb des Git-Repositories:
