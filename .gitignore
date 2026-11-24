@@ -7,12 +7,19 @@ __pycache__/
 .ipynb_checkpoints/
 
 # DVC: generated datasets and artifacts are tracked by DVC
-data/raw/*
+# Match a nonempty filename so DVC can still traverse the parent directories.
+data/raw/?*
 !data/raw/.gitkeep
-data/processed/*
+data/processed/?*
 !data/processed/.gitkeep
-models/*
+models/?*
 !models/.gitkeep
+!data/raw/*.dvc
+!data/raw/.gitignore
+!data/processed/*.dvc
+!data/processed/.gitignore
+!models/*.dvc
+!models/.gitignore
 runs/
 
 # YOLO

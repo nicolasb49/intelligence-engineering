@@ -1,0 +1,6 @@
+outs:
+- md5: 3690e65a8a9479b92ff18804750280d8.dir
+  size: 9037355
+  nfiles: 101
+  hash: md5
+  path: coco-2017-yolo-50
