@@ -29,17 +29,25 @@ git pull --ff-only
 python -m pip install -r requirements.txt
 ```
 
+Liegt dein bisheriger Export noch unter `data/processed/`, verschiebe ihn nach dem Pull einmal an den neuen Ort. So kannst du die vorhandenen Dateien weiterverwenden.
+
+```bash
+if [ -d data/processed/coco-2017-yolo-50 ] && [ ! -e data/coco-2017-yolo-50 ]; then
+    mv data/processed/coco-2017-yolo-50 data/
+fi
+```
+
 Stelle anschließend den passenden Datenstand her. Wenn du Zugriff auf den DVC-Speicher hast, verwende Weg B. Ohne diesen Zugriff kannst du zuerst `dvc status` ausführen. Meldet DVC bereits `Data and pipelines are up to date.`, bist du fertig. Fehlt der Export oder weicht er vom neuen Git-Stand ab, kannst du ihn mit Weg A wiederherstellen. Das gilt auch, wenn DVC `not in cache` meldet.
 
 ## Datenstand herstellen
 
 ### Weg A · Aus COCO aufbauen
 
-Diesen Weg kannst du auf jedem neu eingerichteten Rechner ohne Zugang zum Teamspeicher verwenden. Das Skript liest die 50 Bild-IDs aus `src/coco-2017-train-50.txt`. FiftyOne lädt das COCO-Annotationsarchiv und nur die ausgewählten JPEGs. Vorhandene Downloads verwendet es wieder. Anschließend exportiert das Skript die Bilder und ihre Bounding Boxes im YOLO-Format. **Ein erneuter Lauf ersetzt den bisherigen Exportordner.** Sichere eigene Änderungen darin, falls du sie behalten möchtest.
+Diesen Weg kannst du auf jedem neu eingerichteten Rechner ohne Zugang zum Teamspeicher verwenden. Das Skript liest die 50 Bild-IDs aus `data/coco-2017-train-50.txt`. FiftyOne lädt das COCO-Annotationsarchiv und nur die ausgewählten JPEGs. Vorhandene Downloads verwendet es wieder. Anschließend exportiert das Skript die Bilder und ihre Bounding Boxes im YOLO-Format. **Ein erneuter Lauf ersetzt den bisherigen Exportordner.** Sichere eigene Änderungen darin, falls du sie behalten möchtest.
 
 ```bash
 python -m src.download_coco_subset
-dvc commit data/processed/coco-2017-yolo-50.dvc
+dvc commit data/coco-2017-yolo-50.dvc
 dvc status
 ```
 
@@ -66,7 +74,7 @@ Sobald DVC `Data and pipelines are up to date.` meldet, kannst du mit demselben 
 
 ## Wo die Daten liegen
 
-Der fertige Export liegt unter `data/processed/coco-2017-yolo-50/`.
+Der fertige Export liegt unter `data/coco-2017-yolo-50/`.
 
 | Pfad im Export | Inhalt |
 | --- | --- |
@@ -84,9 +92,9 @@ Wenn du später die Bildauswahl oder Aufbereitung änderst, passe die Bildliste 
 
 ```bash
 python -m src.download_coco_subset
-dvc add data/processed/coco-2017-yolo-50
+dvc add data/coco-2017-yolo-50
 dvc push
-git add src/coco-2017-train-50.txt src/download_coco_subset.py data/processed/coco-2017-yolo-50.dvc
+git add data/coco-2017-train-50.txt src/download_coco_subset.py data/coco-2017-yolo-50.dvc
 git commit -m "Update COCO subset"
 git push
 ```

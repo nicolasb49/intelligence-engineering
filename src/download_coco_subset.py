@@ -11,9 +11,9 @@ import fiftyone.zoo as foz
 CLASSES = ("car", "truck", "bicycle", "person")
 NUM_SAMPLES = 50
 DATASET_NAME = "coco-2017-train-yolo-50"
-IMAGE_IDS = Path(__file__).with_name("coco-2017-train-50.txt")
-REPO_ROOT = Path(__file__).resolve().parents[1]
-EXPORT_DIR = REPO_ROOT / "data" / "processed" / "coco-2017-yolo-50"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+IMAGE_IDS = DATA_DIR / "coco-2017-train-50.txt"
+EXPORT_DIR = DATA_DIR / "coco-2017-yolo-50"
 
 
 def main() -> None:

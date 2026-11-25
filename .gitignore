@@ -6,23 +6,22 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 
-# DVC: generated datasets and artifacts are tracked by DVC
-# Match a nonempty filename so DVC can still traverse the parent directories.
+# DVC-managed YOLO export
+/data/coco-2017-yolo-50/
+
+# Local artifacts in older checkouts
 data/raw/?*
-!data/raw/.gitkeep
 data/processed/?*
-!data/processed/.gitkeep
 models/?*
-!models/.gitkeep
 !data/raw/*.dvc
 !data/raw/.gitignore
 !data/processed/*.dvc
 !data/processed/.gitignore
 !models/*.dvc
 !models/.gitignore
-runs/
 
 # YOLO
+runs/
 *.pt
 *.onnx
 
