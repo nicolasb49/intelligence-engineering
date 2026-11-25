@@ -84,6 +84,25 @@ Der fertige Export liegt unter `data/coco-2017-yolo-50/`.
 
 Der Export enthält ausschließlich Trainingsbilder. Für ein Training mit separater Validierung musst du zusätzlich Validierungsbilder festlegen und den zugehörigen `val`-Pfad in `dataset.yaml` eintragen.
 
+## Aufgabe 2 · Objekte auf einem Straßenbild erkennen
+
+Führe im Projektverzeichnis mit aktivierter Umgebung den Detektor auf einem Straßenbild aus dem COCO-Export aus.
+
+```bash
+python -m src.detect_road_objects
+```
+
+Beim ersten Lauf lädt Ultralytics das auf COCO vortrainierte Modell nach `models/yolov8n.pt`. Danach kannst du den Detektor offline auf der CPU ausführen. Unter `runs/task2/` findest du das Bild `000000061181-annotated.jpg` mit eingezeichneten Boxen und die Datei `000000061181.json`. Sie enthält die Anzahl der Vorhersagen je Klasse sowie Klasse, Konfidenz und Boxkoordinaten in Pixeln für jede Erkennung. Der Detektor berücksichtigt Autos, Lkw, Fahrräder und Personen ab einer Konfidenz von 0,25. Die numerischen Klassen-IDs im Ergebnis stammen aus dem vortrainierten Modell. Für den Vergleich mit den Exportlabels verwende die Klassennamen.
+
+Für ein eigenes Foto verwende `python -m src.detect_road_objects --image /pfad/zum/bild.jpg`. Mit `python -m src.detect_road_objects --all` erhältst du die Vorhersagen für alle Bilder des Teilsets und die Gesamtzahl je Klasse in `runs/task2/subset.json`.
+
+Im [Notebook zur ersten Detektion](task2_detection.ipynb) kannst du das Originalfoto, eine einzelne Erkennung und die Modellboxen im Vergleich zu den COCO-Annotationen ansehen. Um die Konfidenzschwelle selbst zu ändern, öffne es mit JupyterLab in der aktivierten Projektumgebung.
+
+```bash
+python -m pip install jupyterlab
+python -m jupyterlab task2_detection.ipynb
+```
+
 ## Einen neuen Datenstand mit dem Team teilen
 
 Wenn ihr den gemeinsamen DVC-Speicher zum ersten Mal befüllt, genügt ein `dvc push` aus einem Klon mit geprüftem Datenstand und eingerichtetem Teamspeicher.
