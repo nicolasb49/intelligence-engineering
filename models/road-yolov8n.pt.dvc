@@ -1,0 +1,5 @@
+outs:
+- md5: 95f9309b5038ce6a2f972317a4fd86a9
+  size: 6486442
+  hash: md5
+  path: road-yolov8n.pt

@@ -37,7 +37,7 @@ if [ -d data/processed/coco-2017-yolo-50 ] && [ ! -e data/coco-2017-yolo-50 ]; t
 fi
 ```
 
-Stelle anschließend den passenden Datenstand her. Wenn du Zugriff auf den DVC-Speicher hast, verwende Weg B. Ohne diesen Zugriff kannst du zuerst `dvc status` ausführen. Meldet DVC bereits `Data and pipelines are up to date.`, bist du fertig. Fehlt der Export oder weicht er vom neuen Git-Stand ab, kannst du ihn mit Weg A wiederherstellen. Das gilt auch, wenn DVC `not in cache` meldet.
+Stelle anschließend den passenden Datenstand her. Wenn du Zugriff auf den DVC-Speicher hast, verwende Weg B. Ohne diesen Zugriff kannst du zuerst `dvc status data/coco-2017-yolo-50.dvc` ausführen. Meldet DVC bereits `Data and pipelines are up to date.`, bist du fertig. Fehlt der Export oder weicht er vom neuen Git-Stand ab, kannst du ihn mit Weg A wiederherstellen. Das gilt auch, wenn DVC `not in cache` meldet.
 
 ## Datenstand herstellen
 
@@ -48,14 +48,14 @@ Diesen Weg kannst du auf jedem neu eingerichteten Rechner ohne Zugang zum Teamsp
 ```bash
 python -m src.download_coco_subset
 dvc commit data/coco-2017-yolo-50.dvc
-dvc status
+dvc status data/coco-2017-yolo-50.dvc
 ```
 
-`dvc commit` vergleicht den Export mit der in Git gespeicherten Prüfsumme und übernimmt ihn in den lokalen DVC-Cache. Fragt DVC, ob du geänderte Daten übernehmen möchtest, antworte mit `n` und prüfe die Abweichung. Bei erfolgreicher Wiederherstellung meldet `dvc status` am Ende `Data and pipelines are up to date.`.
+`dvc commit` vergleicht den Export mit der in Git gespeicherten Prüfsumme und übernimmt ihn in den lokalen DVC-Cache. Fragt DVC, ob du geänderte Daten übernehmen möchtest, antworte mit `n` und prüfe die Abweichung. Bei erfolgreicher Wiederherstellung meldet die Statusprüfung am Ende `Data and pipelines are up to date.`.
 
 ### Weg B · Aus dem DVC-Speicher laden
 
-Dieser Weg setzt Zugriff auf einen Speicher voraus, der den gewünschten Export bereits enthält. Standardmäßig sucht DVC im Ordner `intelligence-engineering-dvc-storage` neben dem Repository. Wenn dieser Ordner bei dir vorhanden und befüllt ist, kannst du direkt `dvc pull` ausführen.
+Dieser Weg setzt Zugriff auf einen Speicher voraus, der den gewünschten Export bereits enthält. Standardmäßig sucht DVC im Ordner `intelligence-engineering-dvc-storage` neben dem Repository. Wenn dieser Ordner bei dir vorhanden und befüllt ist, kannst du direkt `dvc pull data/coco-2017-yolo-50.dvc` ausführen.
 
 Liegt der Export auf einem eingebundenen Teamlaufwerk, trage dessen Pfad einmal für deinen Klon ein. Ersetze den Beispielpfad durch den tatsächlichen Speicherort.
 
@@ -66,11 +66,11 @@ dvc remote modify --local storage url /absoluter/pfad/zum/team-speicher
 Lade nun den Export für deinen Git-Stand und prüfe das Ergebnis.
 
 ```bash
-dvc pull
-dvc status
+dvc pull data/coco-2017-yolo-50.dvc
+dvc status data/coco-2017-yolo-50.dvc
 ```
 
-Sobald DVC `Data and pipelines are up to date.` meldet, kannst du mit demselben Export wie der Rest des Teams arbeiten.
+Sobald die Statusprüfung für den Export `Data and pipelines are up to date.` meldet, kannst du mit demselben Export wie der Rest des Teams arbeiten.
 
 ## Wo die Daten liegen
 
@@ -82,7 +82,7 @@ Der fertige Export liegt unter `data/coco-2017-yolo-50/`.
 | `labels/train/` | Zu jedem Bild gehört eine gleichnamige Textdatei. Jede Zeile beschreibt eine Bounding Box mit Klassen-ID, Mittelpunkt (x, y), Breite und Höhe. Die Koordinaten sind auf die Bildgröße normiert. |
 | `dataset.yaml` | Relativer Pfad zu den Bildern und Zuordnung der Klassen-IDs (0 = car, 1 = truck, 2 = bicycle, 3 = person). |
 
-Der Export enthält ausschließlich Trainingsbilder. Für ein Training mit separater Validierung musst du zusätzlich Validierungsbilder festlegen und den zugehörigen `val`-Pfad in `dataset.yaml` eintragen.
+Der Export enthält ausschließlich Trainingsbilder. Das Notebook teilt diese Bilder für das Feintraining in 40 Trainings- und 10 Validierungsbilder auf.
 
 ## Aufgabe 2 · Objekte auf einem Straßenbild erkennen
 
@@ -96,11 +96,20 @@ Beim ersten Lauf lädt Ultralytics das auf COCO vortrainierte Modell nach `model
 
 Für ein eigenes Foto verwende `python -m src.detect_road_objects --image /pfad/zum/bild.jpg`. Mit `python -m src.detect_road_objects --all` erhältst du die Vorhersagen für alle Bilder des Teilsets und die Gesamtzahl je Klasse in `runs/task2/subset.json`.
 
-Im [Notebook zur ersten Detektion](task2_detection.ipynb) kannst du das Originalfoto, eine einzelne Erkennung und die Modellboxen im Vergleich zu den COCO-Annotationen ansehen. Um die Konfidenzschwelle selbst zu ändern, öffne es mit JupyterLab in der aktivierten Projektumgebung.
+Im [Notebook zur ersten Detektion](nicolas_task2_detection.ipynb) kannst du das Originalfoto, eine einzelne Erkennung und die Modellboxen im Vergleich zu den COCO-Annotationen ansehen. Um die Konfidenzschwelle selbst zu ändern, öffne es mit JupyterLab in der aktivierten Projektumgebung.
 
 ```bash
 python -m pip install jupyterlab
-python -m jupyterlab task2_detection.ipynb
+python -m jupyterlab nicolas_task2_detection.ipynb
+```
+
+Die Abschnitte 5–8 im selben Notebook trainieren YOLOv8n drei Epochen auf der CPU. Sie zeigen den Trainingsverlauf und vergleichen das vortrainierte und das feintrainierte Modell auf demselben Validierungsbild. Die gespeicherten Ausgaben lassen sich direkt ansehen. Beim erneuten Ausführen speichert Ultralytics den ausgewählten Modellstand im jeweiligen Laufordner unter `weights/best.pt`.
+
+Mit Zugriff auf den DVC-Speicher kannst du das Modell aus dem dokumentierten Lauf separat laden und auf ein eigenes Foto anwenden.
+
+```bash
+dvc pull models/road-yolov8n.pt.dvc
+yolo predict model=models/road-yolov8n.pt source=/pfad/zum/bild.jpg device=cpu
 ```
 
 ## Einen neuen Datenstand mit dem Team teilen
