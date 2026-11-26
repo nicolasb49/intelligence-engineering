@@ -82,7 +82,7 @@ Der fertige Export liegt unter `data/coco-2017-yolo-50/`.
 | `labels/train/` | Zu jedem Bild gehört eine gleichnamige Textdatei. Jede Zeile beschreibt eine Bounding Box mit Klassen-ID, Mittelpunkt (x, y), Breite und Höhe. Die Koordinaten sind auf die Bildgröße normiert. |
 | `dataset.yaml` | Relativer Pfad zu den Bildern und Zuordnung der Klassen-IDs (0 = car, 1 = truck, 2 = bicycle, 3 = person). |
 
-Der Export enthält ausschließlich Trainingsbilder. Das Notebook teilt diese Bilder für das Feintraining in 40 Trainings- und 10 Validierungsbilder auf.
+Der Export enthält ausschließlich Trainingsbilder.
 
 ## Aufgabe 2 · Objekte auf einem Straßenbild erkennen
 
@@ -96,21 +96,14 @@ Beim ersten Lauf lädt Ultralytics das auf COCO vortrainierte Modell nach `model
 
 Für ein eigenes Foto verwende `python -m src.detect_road_objects --image /pfad/zum/bild.jpg`. Mit `python -m src.detect_road_objects --all` erhältst du die Vorhersagen für alle Bilder des Teilsets und die Gesamtzahl je Klasse in `runs/task2/subset.json`.
 
-Im [Notebook zur ersten Detektion](nicolas_task2_detection.ipynb) kannst du das Originalfoto, eine einzelne Erkennung und die Modellboxen im Vergleich zu den COCO-Annotationen ansehen. Um die Konfidenzschwelle selbst zu ändern, öffne es mit JupyterLab in der aktivierten Projektumgebung.
+im [notebook zu aufgabe 2](nicolas_task2_detection.ipynb) findest du die objekterkennung, den vergleich mit coco und den cpu-benchmark für vier batchgrößen.
 
 ```bash
 python -m pip install jupyterlab
 python -m jupyterlab nicolas_task2_detection.ipynb
 ```
 
-Die Abschnitte 5–8 im selben Notebook trainieren YOLOv8n drei Epochen auf der CPU. Sie zeigen den Trainingsverlauf und vergleichen das vortrainierte und das feintrainierte Modell auf demselben Validierungsbild. Die gespeicherten Ausgaben lassen sich direkt ansehen. Beim erneuten Ausführen speichert Ultralytics den ausgewählten Modellstand im jeweiligen Laufordner unter `weights/best.pt`.
-
-Mit Zugriff auf den DVC-Speicher kannst du das Modell aus dem dokumentierten Lauf separat laden und auf ein eigenes Foto anwenden.
-
-```bash
-dvc pull models/road-yolov8n.pt.dvc
-yolo predict model=models/road-yolov8n.pt source=/pfad/zum/bild.jpg device=cpu
-```
+der gespeicherte modellstand aus einem früheren versuch ist separat über `dvc pull models/road-yolov8n.pt.dvc` verfügbar.
 
 ## Einen neuen Datenstand mit dem Team teilen
 
