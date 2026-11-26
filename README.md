@@ -105,6 +105,8 @@ python -m jupyterlab nicolas_task2_detection.ipynb
 
 der gespeicherte modellstand aus einem früheren versuch ist separat über `dvc pull models/road-yolov8n.pt.dvc` verfügbar.
 
+das [cnn-notebook](nicolas_cnn_detection.ipynb) trainiert einen detektor von grund auf mit 40 bildern und misst die map50 auf den übrigen zehn.
+
 ## Einen neuen Datenstand mit dem Team teilen
 
 Wenn ihr den gemeinsamen DVC-Speicher zum ersten Mal befüllt, genügt ein `dvc push` aus einem Klon mit geprüftem Datenstand und eingerichtetem Teamspeicher.

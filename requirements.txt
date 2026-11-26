@@ -1,3 +1,4 @@
 dvc==3.67.1
 ultralytics==8.4.216
 fiftyone==1.22.1
+torchmetrics[detection]==1.9.0
