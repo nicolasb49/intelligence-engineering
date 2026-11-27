@@ -1,29 +1,8 @@
-# Environments
 .venv/
-
-# Python
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
-
-# DVC-managed YOLO export
-/data/coco-2017-yolo-50/
-
-# Local artifacts in older checkouts
-data/raw/?*
-data/processed/?*
-models/?*
-!data/raw/*.dvc
-!data/raw/.gitignore
-!data/processed/*.dvc
-!data/processed/.gitignore
-!models/*.dvc
-!models/.gitignore
-
-# YOLO
 runs/
 *.pt
 *.onnx
-
-# Local files
 .DS_Store

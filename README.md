@@ -1,12 +1,10 @@
 # Intelligence Engineering
 
-In diesem Uni-Projekt nutzen wir einen Ausschnitt aus COCO 2017 für die Objekterkennung mit YOLOv8. Der aktuelle Datenstand umfasst **50 Trainingsbilder und 739 Bounding Boxes** für die Klassen `car`, `truck`, `bicycle` und `person`.
+In diesem Uni-Projekt vergleichen wir zwei 2D-Objektdetektoren auf KITTI-Straßenszenen. Git enthält Code, die feste Bildauswahl und DVC-Zeiger. DVC verwaltet den vollständigen Rohdatensatz und den KITTI-Modellstand für die Kommandozeile.
 
-Git liefert den Code, die Liste der Bild-IDs und die Prüfsumme des zugehörigen Datenstands. Mit DVC lässt sich prüfen, ob die Bilder und Annotationen auf deinem Rechner zu diesem Git-Stand passen.
+## Projekt einrichten
 
-## Zum ersten Mal einrichten
-
-Du brauchst Git, Python 3.13 und eine Internetverbindung. Die folgenden Befehle sind für macOS und Linux. Klone das Projekt und richte eine virtuelle Python-Umgebung im Repository ein.
+Die folgenden Befehle laufen unter macOS oder Linux mit Python 3.13.
 
 ```bash
 git clone https://github.com/nicolasb49/intelligence-engineering.git
@@ -14,110 +12,54 @@ cd intelligence-engineering
 python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+dvc pull
+dvc status
 ```
 
-Führe anschließend **einen** der beiden Wege unter „Datenstand herstellen“ aus. Alle weiteren Befehle laufen im Projektverzeichnis mit aktivierter Umgebung.
+Der voreingestellte DVC-Remote `storage` liegt im Ordner `intelligence-engineering-dvc-storage` neben dem Repository. Für einen neuen Klon auf einem anderen Rechner brauchst du Zugriff auf eine befüllte Kopie dieses Speichers. Wenn er bei dir unter einem anderen Pfad eingebunden ist, setze vor `dvc pull` die lokale Konfiguration mit `dvc remote modify --local storage url /pfad/zum/speicher`. Um ausschließlich die Rohdaten abzurufen, verwende `dvc pull data/raw/kitti.dvc`.
 
-## Einen vorhandenen Klon aktualisieren
+## Datenbestand
 
-Wechsle im Terminal in dein Projektverzeichnis. Aktiviere die vorhandene Umgebung, hole den aktuellen Stand von `main` und gleiche die installierten Pakete mit der aktualisierten `requirements.txt` ab.
+Die Lieferung enthielt die Bildordner in `data/data_object_image_2` und die Labels separat in `data/training/label_2`. Unter `data/raw/kitti/` liegen sie jetzt in der KITTI-Ordnerstruktur. Der Datenstand umfasst 12,57 GB.
 
-```bash
-source .venv/bin/activate
-git switch main
-git pull --ff-only
-python -m pip install -r requirements.txt
-```
-
-Liegt dein bisheriger Export noch unter `data/processed/`, verschiebe ihn nach dem Pull einmal an den neuen Ort. So kannst du die vorhandenen Dateien weiterverwenden.
-
-```bash
-if [ -d data/processed/coco-2017-yolo-50 ] && [ ! -e data/coco-2017-yolo-50 ]; then
-    mv data/processed/coco-2017-yolo-50 data/
-fi
-```
-
-Stelle anschließend den passenden Datenstand her. Wenn du Zugriff auf den DVC-Speicher hast, verwende Weg B. Ohne diesen Zugriff kannst du zuerst `dvc status data/coco-2017-yolo-50.dvc` ausführen. Meldet DVC bereits `Data and pipelines are up to date.`, bist du fertig. Fehlt der Export oder weicht er vom neuen Git-Stand ab, kannst du ihn mit Weg A wiederherstellen. Das gilt auch, wenn DVC `not in cache` meldet.
-
-## Datenstand herstellen
-
-### Weg A · Aus COCO aufbauen
-
-Diesen Weg kannst du auf jedem neu eingerichteten Rechner ohne Zugang zum Teamspeicher verwenden. Das Skript liest die 50 Bild-IDs aus `data/coco-2017-train-50.txt`. FiftyOne lädt das COCO-Annotationsarchiv und nur die ausgewählten JPEGs. Vorhandene Downloads verwendet es wieder. Anschließend exportiert das Skript die Bilder und ihre Bounding Boxes im YOLO-Format. **Ein erneuter Lauf ersetzt den bisherigen Exportordner.** Sichere eigene Änderungen darin, falls du sie behalten möchtest.
-
-```bash
-python -m src.download_coco_subset
-dvc commit data/coco-2017-yolo-50.dvc
-dvc status data/coco-2017-yolo-50.dvc
-```
-
-`dvc commit` vergleicht den Export mit der in Git gespeicherten Prüfsumme und übernimmt ihn in den lokalen DVC-Cache. Fragt DVC, ob du geänderte Daten übernehmen möchtest, antworte mit `n` und prüfe die Abweichung. Bei erfolgreicher Wiederherstellung meldet die Statusprüfung am Ende `Data and pipelines are up to date.`.
-
-### Weg B · Aus dem DVC-Speicher laden
-
-Dieser Weg setzt Zugriff auf einen Speicher voraus, der den gewünschten Export bereits enthält. Standardmäßig sucht DVC im Ordner `intelligence-engineering-dvc-storage` neben dem Repository. Wenn dieser Ordner bei dir vorhanden und befüllt ist, kannst du direkt `dvc pull data/coco-2017-yolo-50.dvc` ausführen.
-
-Liegt der Export auf einem eingebundenen Teamlaufwerk, trage dessen Pfad einmal für deinen Klon ein. Ersetze den Beispielpfad durch den tatsächlichen Speicherort.
-
-```bash
-dvc remote modify --local storage url /absoluter/pfad/zum/team-speicher
-```
-
-Lade nun den Export für deinen Git-Stand und prüfe das Ergebnis.
-
-```bash
-dvc pull data/coco-2017-yolo-50.dvc
-dvc status data/coco-2017-yolo-50.dvc
-```
-
-Sobald die Statusprüfung für den Export `Data and pipelines are up to date.` meldet, kannst du mit demselben Export wie der Rest des Teams arbeiten.
-
-## Wo die Daten liegen
-
-Der fertige Export liegt unter `data/coco-2017-yolo-50/`.
-
-| Pfad im Export | Inhalt |
+| Ordner unter `data/raw/kitti/` | Inhalt |
 | --- | --- |
-| `images/train/` | 50 JPEGs. Der Dateiname entspricht der COCO-Bild-ID. |
-| `labels/train/` | Zu jedem Bild gehört eine gleichnamige Textdatei. Jede Zeile beschreibt eine Bounding Box mit Klassen-ID, Mittelpunkt (x, y), Breite und Höhe. Die Koordinaten sind auf die Bildgröße normiert. |
-| `dataset.yaml` | Relativer Pfad zu den Bildern und Zuordnung der Klassen-IDs (0 = car, 1 = truck, 2 = bicycle, 3 = person). |
+| `training/image_2/` | 7.481 PNG-Straßenbilder der linken Farbkamera |
+| `training/label_2/` | 7.481 gleichnamige Textdateien mit insgesamt 51.865 Annotationszeilen |
+| `testing/image_2/` | 7.518 Testbilder ohne mitgelieferte Labels |
 
-Der Export enthält ausschließlich Trainingsbilder.
+Jede Annotationszeile enthält die Kategorie, Trunkierung, Verdeckung, Beobachtungswinkel, vier 2D-Boxkoordinaten in Pixeln sowie 3D-Abmessungen, Position und Rotation. Im Bestand kommen Car, Van, Truck, Pedestrian, Person_sitting, Cyclist, Tram, Misc und DontCare vor. Die Experimente verwenden die 2D-Boxen für **Car, Truck, Cyclist und Pedestrian**. Sie lassen die übrigen Kategorien sowie DontCare-Regionen bei der Zielerstellung aus. Die Auswertung ist ein vereinfachter Funktionstest.
 
-## Aufgabe 2 · Objekte auf einem Straßenbild erkennen
+## Experimente ausführen
 
-Führe im Projektverzeichnis mit aktivierter Umgebung den Detektor auf einem Straßenbild aus dem COCO-Export aus.
+`data/kitti-smoke-split.json` hält die mit Seed 42 gezogenen Bild-IDs fest. Beide Modelle trainieren drei Epochen auf denselben **40 Bildern** und verwenden **10 weitere Bilder** zur Validierung. Alle 50 stammen aus dem beschrifteten Trainingsordner. Das entspricht rund 0,67 % dieses Ordners. Die offiziellen Testbilder bleiben für spätere Inferenz verfügbar.
+
+```bash
+python -m jupyterlab
+```
+
+- [Aufgabe 2 mit YOLOv8n](nicolas_task2_detection.ipynb) trainiert ab zufälligen Gewichten, vergleicht Vorhersagen mit den KITTI-Boxen und misst CPU-Latenz und Durchsatz für vier Batchgrößen. Der Trainingslauf erzeugt seinen kleinen YOLO-Export temporär. Ergebnisse und Gewichte liegen unter `runs/kitti/yolo*/`.
+- [CNN mit SSDLite und MobileNetV3](nicolas_cnn_detection.ipynb) liest die Pixelboxen direkt und vergleicht die AP50 je Klasse sowie die mAP50 vor und nach dem Training. Das Notebook speichert die Gewichte unter `runs/kitti/cnn/`.
+
+Mit dem in DVC gespeicherten YOLO-Checkpoint kannst du die Inferenz direkt ausführen. Die drei Varianten verarbeiten das erste Validierungsbild, ein eigenes Bild oder die 50 Bilder der festen Auswahl.
 
 ```bash
 python -m src.detect_road_objects
+python -m src.detect_road_objects --image /pfad/zum/bild.png
+python -m src.detect_road_objects --all
 ```
 
-Beim ersten Lauf lädt Ultralytics das auf COCO vortrainierte Modell nach `models/yolov8n.pt`. Danach kannst du den Detektor offline auf der CPU ausführen. Unter `runs/task2/` findest du das Bild `000000061181-annotated.jpg` mit eingezeichneten Boxen und die Datei `000000061181.json`. Sie enthält die Anzahl der Vorhersagen je Klasse sowie Klasse, Konfidenz und Boxkoordinaten in Pixeln für jede Erkennung. Der Detektor berücksichtigt Autos, Lkw, Fahrräder und Personen ab einer Konfidenz von 0,25. Die numerischen Klassen-IDs im Ergebnis stammen aus dem vortrainierten Modell. Für den Vergleich mit den Exportlabels verwende die Klassennamen.
+Die Ergebnisse stehen unter `runs/kitti/task2/`. Für ein Einzelbild entstehen ein annotiertes Bild und ein JSON-Bericht, für die gesamte Auswahl ein gemeinsamer Bericht. Nach dem kurzen Training können bei der Konfidenzschwelle 0,25 alle Vorhersagen herausfallen.
 
-Für ein eigenes Foto verwende `python -m src.detect_road_objects --image /pfad/zum/bild.jpg`. Mit `python -m src.detect_road_objects --all` erhältst du die Vorhersagen für alle Bilder des Teilsets und die Gesamtzahl je Klasse in `runs/task2/subset.json`.
+## Datenstand aktualisieren
 
-im [notebook zu aufgabe 2](nicolas_task2_detection.ipynb) findest du die objekterkennung, den vergleich mit coco und den cpu-benchmark für vier batchgrößen.
+Ändere die Rohdaten unter `data/raw/kitti/` und prüfe bei einer neuen Auswahl auch die Bild-IDs in der Split-Datei. Versioniere anschließend die Daten und übertrage sie vor dem Git-Commit in den DVC-Speicher.
 
 ```bash
-python -m pip install jupyterlab
-python -m jupyterlab nicolas_task2_detection.ipynb
+dvc add data/raw/kitti
+dvc push data/raw/kitti.dvc
+dvc status -c data/raw/kitti.dvc
+git add data/raw/kitti.dvc data/kitti-smoke-split.json
 ```
 
-der gespeicherte modellstand aus einem früheren versuch ist separat über `dvc pull models/road-yolov8n.pt.dvc` verfügbar.
-
-das [cnn-notebook](nicolas_cnn_detection.ipynb) trainiert einen detektor von grund auf mit 40 bildern und misst die map50 auf den übrigen zehn.
-
-## Einen neuen Datenstand mit dem Team teilen
-
-Wenn ihr den gemeinsamen DVC-Speicher zum ersten Mal befüllt, genügt ein `dvc push` aus einem Klon mit geprüftem Datenstand und eingerichtetem Teamspeicher.
-
-Wenn du später die Bildauswahl oder Aufbereitung änderst, passe die Bildliste oder das Exportskript an. Erzeuge den Export erneut und speichere seine neue Prüfsumme mit `dvc add`. Lade die Daten in den gemeinsamen DVC-Speicher hoch, bevor du den zugehörigen Git-Commit veröffentlichst. So können die anderen den neuen Stand direkt abrufen.
-
-```bash
-python -m src.download_coco_subset
-dvc add data/coco-2017-yolo-50
-dvc push
-git add data/coco-2017-train-50.txt src/download_coco_subset.py data/coco-2017-yolo-50.dvc
-git commit -m "Update COCO subset"
-git push
-```
+Für einen neuen CLI-Modellstand liefert `python -m src.train_kitti_yolo` den Pfad zum letzten Checkpoint. Kopiere diesen nach `models/kitti-yolov8n.pt`, führe `dvc add models/kitti-yolov8n.pt` und `dvc push models/kitti-yolov8n.pt.dvc` aus und committe den geänderten Modellzeiger in Git.

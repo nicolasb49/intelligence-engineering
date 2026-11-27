@@ -1,0 +1,5 @@
+outs:
+- md5: b1f20cb296f1ba53b217ea15c810c254
+  size: 6194922
+  hash: md5
+  path: kitti-yolov8n.pt
