@@ -28,18 +28,18 @@ Die Lieferung enthielt die Bildordner in `data/data_object_image_2` und die Labe
 | `training/label_2/` | 7.481 gleichnamige Textdateien mit insgesamt 51.865 Annotationszeilen |
 | `testing/image_2/` | 7.518 Testbilder ohne mitgelieferte Labels |
 
-Jede Annotationszeile enthält die Kategorie, Trunkierung, Verdeckung, Beobachtungswinkel, vier 2D-Boxkoordinaten in Pixeln sowie 3D-Abmessungen, Position und Rotation. Im Bestand kommen Car, Van, Truck, Pedestrian, Person_sitting, Cyclist, Tram, Misc und DontCare vor. Die Experimente verwenden die 2D-Boxen für **Car, Truck, Cyclist und Pedestrian**. Sie lassen die übrigen Kategorien sowie DontCare-Regionen bei der Zielerstellung aus. Die Auswertung ist ein vereinfachter Funktionstest.
+Jede Annotationszeile enthält die Kategorie, Trunkierung, Verdeckung, Beobachtungswinkel, vier 2D-Boxkoordinaten in Pixeln sowie 3D-Abmessungen, Position und Rotation. Im Bestand kommen Car, Van, Truck, Pedestrian, Person_sitting, Cyclist, Tram, Misc und DontCare vor. Die Experimente verwenden die 2D-Boxen für **Car, Truck, Cyclist und Pedestrian**. DontCare-Flächen zählen im Training nicht als positive Ziele. Das CNN berücksichtigt sie bei der Auswertung als Ignorierbereiche.
 
 ## Experimente ausführen
 
-`data/kitti-smoke-split.json` hält die mit Seed 42 gezogenen Bild-IDs fest. Beide Modelle trainieren drei Epochen auf denselben **40 Bildern** und verwenden **10 weitere Bilder** zur Validierung. Alle 50 stammen aus dem beschrifteten Trainingsordner. Das entspricht rund 0,67 % dieses Ordners. Die offiziellen Testbilder bleiben für spätere Inferenz verfügbar.
+Für den YOLO-Funktionstest enthält `data/kitti-smoke-split.json` 40 Trainings- und 10 Validierungsbilder. Für das größere CNN-Experiment ordnet `data/kitti-cnn-split.csv` 768 Trainings-, 192 Validierungs- und 256 Abschlussbilder getrennten Aufnahmefahrten zu. Beide Experimente verwenden Bilder aus dem beschrifteten KITTI-Trainingsordner.
 
 ```bash
 python -m jupyterlab
 ```
 
 - [Aufgabe 2 mit YOLOv8n](nicolas_task2_detection.ipynb) trainiert ab zufälligen Gewichten, vergleicht Vorhersagen mit den KITTI-Boxen und misst CPU-Latenz und Durchsatz für vier Batchgrößen. Der Trainingslauf erzeugt seinen kleinen YOLO-Export temporär. Ergebnisse und Gewichte liegen unter `runs/kitti/yolo*/`.
-- [CNN mit SSDLite und MobileNetV3](nicolas_cnn_detection.ipynb) liest die Pixelboxen direkt und vergleicht die AP50 je Klasse sowie die mAP50 vor und nach dem Training. Das Notebook speichert die Gewichte unter `runs/kitti/cnn/`.
+- [CNN mit SSDLite und MobileNetV3](nicolas_cnn_detection.ipynb) trainiert den Detektionskopf und einen Teil des ImageNet-Backbones auf 768 Bildern. Beim ersten Lauf lädt Torchvision die MobileNetV3-Gewichte. Die Validierungs-mAP über IoU 0,50 bis 0,95 bestimmt den besten Checkpoint unter `runs/kitti/cnn/ssdlite-kitti-best.pt`. Die Schlussauswertung vergleicht ihn mit einer separat trainierten 40-Bilder-Referenz.
 
 Mit dem in DVC gespeicherten YOLO-Checkpoint kannst du die Inferenz direkt ausführen. Die drei Varianten verarbeiten das erste Validierungsbild, ein eigenes Bild oder die 50 Bilder der festen Auswahl.
 

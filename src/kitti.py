@@ -1,4 +1,4 @@
-"""The shared KITTI 2D detection subset used by both notebooks."""
+"""KITTI paths, 2D annotations and the YOLO smoke-test split."""
 import json
 from pathlib import Path
 
